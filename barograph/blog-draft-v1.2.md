@@ -4,7 +4,7 @@
 
 BAROGRAPH began as one recording drum. As of v1.2.0 it is a full meteorograph: a wall of registers, every measurement from the rooftop keeping its own seven days of chart paper.
 
-Wind was already there, gusts and all. Now humidity has a hygrograph, traced in mulberry ink with DRY, TEMPERATE, and DAMP engraved along the margin. Sunshine has an actinograph in burnt umber, drawing its daily bell curves with the ultraviolet index stippled faintly above, and the whole trace lies flat along the baseline at night, which is the most honest thing a solar recorder can do.
+Wind was already there, gusts and all. Now humidity has a hygrograph, traced in sunbury ink with DRY, TEMPERATE, and DAMP engraved along the margin. Sunshine has an actinograph in burnt umber, drawing its daily bell curves with the ultraviolet index stippled faintly above, and the whole trace lies flat along the baseline at night, which is the most honest thing a solar recorder can do.
 
 Rain got the instrument I am fondest of. A Victorian siphon rain gauge drew a rising line as its float lifted, and when the chamber filled, the siphon emptied it and the pen plunged back to nought. My pluviograph does the same: the indigo trace climbs with the day's accumulation and drops to zero at midnight. A wet week reads as a row of shark fins. The plinth says so plainly: THE SIPHON EMPTIES AT MIDNIGHT.
 

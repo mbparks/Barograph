@@ -1,0 +1,14 @@
+name = "wx-relay"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+[vars]
+# Your Weather Underground PWS station ID (fill this in)
+STATION_ID = "KMDXXXXXXX"
+# Origins allowed to call this Worker from the browser
+ALLOWED_ORIGINS = "https://mbparks.com,https://www.mbparks.com"
+# Set to "true" for console logging in wrangler tail
+DEBUG = "false"
+
+# The API key is a secret, never stored in this file.
+# Set it with:  wrangler secret put WU_API_KEY

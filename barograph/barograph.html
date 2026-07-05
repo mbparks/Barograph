@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<!-- BAROGRAPH v1.0.0 build marker -->
+<html lang="en" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BAROGRAPH · Field Instrument No. 067 · v1.0.0</title>
+<meta name="description" content="A Victorian observatory drum recording live weather from a personal weather station.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+/* ============ tokens ============ */
+:root, :root[data-theme="night"]{
+  --bg:#151009; --bg2:#1d1610; --panel:#241b12; --panel-edge:#3a2c1b;
+  --text:#ead9b5; --muted:#b39a6b;
+  --brass:#c9a34a; --brass-hi:#ecd18a; --brass-dk:#6f5520;
+  --paper:#e9dcba; --paper-dk:#d8c79c; --grid:#b06a3e; --grid-soft:#caa27a;
+  --ink:#7a2222; --ink2:#2e4d5e; --mercury:#a12b1f;
+  --glass:#cfe4de; --accent:#7fae98; --danger:#c0533a;
+  --shadow:rgba(0,0,0,.55); --vignette:rgba(0,0,0,.35);
+}
+:root[data-theme="day"]{
+  --bg:#efe4cc; --bg2:#e7d9bc; --panel:#f2e7cd; --panel-edge:#b49a6c;
+  --text:#2c2010; --muted:#6b5636;
+  --brass:#8a6a28; --brass-hi:#c9a34a; --brass-dk:#5c4517;
+  --paper:#f6eecf; --paper-dk:#e8dcb8; --grid:#a55c32; --grid-soft:#c08a5c;
+  --ink:#7a2222; --ink2:#2e4d5e; --mercury:#a12b1f;
+  --glass:#b9d4cc; --accent:#3f7a63; --danger:#a13a24;
+  --shadow:rgba(60,40,10,.30); --vignette:rgba(90,60,20,.12);
+}
+:root[data-theme="contrast"]{
+  --bg:#000; --bg2:#000; --panel:#0a0a0a; --panel-edge:#ffffff;
+  --text:#ffffff; --muted:#e6e6e6;
+  --brass:#ffd75e; --brass-hi:#fff2c0; --brass-dk:#b89a3e;
+  --paper:#ffffff; --paper-dk:#f0f0f0; --grid:#767676; --grid-soft:#9a9a9a;
+  --ink:#000000; --ink2:#003b8e; --mercury:#b00000;
+  --glass:#dff2ec; --accent:#ffea00; --danger:#ff5c5c;
+  --shadow:rgba(0,0,0,.9); --vignette:rgba(0,0,0,0);
+}
+/* ============ base ============ */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 50% -10%, var(--bg2), var(--bg) 70%),
+    var(--bg);
+  color:var(--text);
+  font-family:'IM Fell English', Georgia, 'Times New Roman', serif;
+  min-height:100vh;
+  line-height:1.45;
+}
+a{color:var(--accent)}
+button{font-family:inherit;cursor:pointer}
+.sc{font-family:'IM Fell English SC','IM Fell English',Georgia,serif}
+.wrap{max-width:1160px;margin:0 auto;padding:0 16px 48px}
+/* ============ header plate ============ */
+header.plate{
+  margin:18px auto 10px; max-width:1160px; padding:14px 18px;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  border:1px solid var(--brass-dk);
+  border-radius:8px;
+  background:linear-gradient(180deg, var(--panel), var(--bg2));
+  box-shadow:0 6px 24px var(--shadow), inset 0 1px 0 var(--panel-edge);
+  position:relative;
+}
+header.plate::before, header.plate::after{
+  content:""; position:absolute; width:9px; height:9px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, var(--brass-hi), var(--brass-dk));
+  top:10px;
+}
+header.plate::before{left:10px} header.plate::after{right:10px}
+h1{
+  margin:0; font-size:clamp(1.6rem, 4vw, 2.4rem); letter-spacing:.14em;
+  color:var(--brass); text-shadow:0 1px 0 rgba(0,0,0,.4); font-weight:400;
+}
+.subtitle{color:var(--muted); font-style:italic; font-size:.95rem}
+.head-left{flex:1 1 320px; min-width:260px}
+.head-right{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.btn{
+  background:linear-gradient(180deg,var(--panel),var(--bg2));
+  color:var(--text); border:1px solid var(--brass-dk); border-radius:6px;
+  padding:8px 12px; font-size:.95rem; letter-spacing:.05em;
+}
+.btn:hover{border-color:var(--brass)}
+.btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px;
+}
+.badge{
+  padding:4px 10px; border-radius:999px; border:1px solid var(--brass-dk);
+  font-size:.8rem; letter-spacing:.12em; color:var(--muted);
+}
+.badge.live{color:var(--accent); border-color:var(--accent)}
+.badge.warn{color:var(--danger); border-color:var(--danger)}
+/* ============ drum ============ */
+#drum-card{
+  margin-top:14px; padding:14px; border:1px solid var(--brass-dk); border-radius:10px;
+  background:linear-gradient(180deg,var(--panel),var(--bg2));
+  box-shadow:0 10px 34px var(--shadow), inset 0 0 60px var(--vignette);
+  position:relative; overflow:hidden;
+}
+:root[data-theme="night"] #drum-card::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(560px 340px at 50% 30%, rgba(255,196,110,.32), transparent 70%);
+  mix-blend-mode:soft-light;
+  animation:lampFlicker 7s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  :root[data-theme="night"] #drum-card::after{animation:none}
+}
+#drum svg{display:block; width:100%; height:auto}
+.caption-plate{
+  margin:10px auto 0; text-align:center; color:var(--muted);
+  font-style:italic; font-size:.95rem; letter-spacing:.04em;
+}
+.caption-plate b{color:var(--text); font-style:normal; letter-spacing:.08em}
+/* ============ dial shelf ============ */
+.shelf{
+  display:grid; gap:14px; margin-top:14px;
+  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
+}
+.dial-card{
+  margin:0; padding:12px; border:1px solid var(--brass-dk); border-radius:10px;
+  background:linear-gradient(180deg,var(--panel),var(--bg2));
+  box-shadow:0 8px 26px var(--shadow), inset 0 0 34px var(--vignette);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.dial-card svg{width:100%; max-width:230px; height:auto}
+figcaption{
+  text-align:center; font-size:.92rem; color:var(--muted); font-style:italic;
+}
+figcaption b{color:var(--text); font-style:normal; letter-spacing:.06em}
+.plaque{
+  border:1px solid var(--brass-dk); border-radius:10px; padding:14px 16px;
+  background:linear-gradient(180deg,var(--panel),var(--bg2));
+  box-shadow:0 8px 26px var(--shadow), inset 0 0 34px var(--vignette);
+}
+.plaque h2{
+  margin:0 0 6px; font-size:1rem; letter-spacing:.16em; color:var(--brass);
+  font-weight:400;
+}
+.plaque .row{display:flex; justify-content:space-between; gap:10px; font-size:.95rem; padding:2px 0}
+.plaque .row span:first-child{color:var(--muted); font-style:italic}
+/* ============ drawers & modal ============ */
+.drawer{
+  position:fixed; top:0; right:0; height:100vh; width:min(380px, 92vw);
+  background:linear-gradient(180deg,var(--panel),var(--bg2));
+  border-left:1px solid var(--brass-dk); box-shadow:-12px 0 40px var(--shadow);
+  transform:translateX(105%); transition:transform .28s ease; z-index:40;
+  padding:18px; overflow-y:auto;
+}
+.drawer.open{transform:translateX(0)}
+.drawer h2{margin:4px 0 14px; letter-spacing:.14em; color:var(--brass); font-weight:400}
+.field{margin-bottom:12px}
+.field label{display:block; font-size:.9rem; color:var(--muted); font-style:italic; margin-bottom:4px}
+.field input[type="text"], .field input[type="number"], .field input[type="email"], .field select, .field textarea{
+  width:100%; padding:8px 10px; border-radius:6px; border:1px solid var(--brass-dk);
+  background:var(--bg2); color:var(--text); font-family:inherit; font-size:.95rem;
+}
+.field textarea{min-height:120px; resize:vertical}
+.check{display:flex; gap:8px; align-items:center; margin-bottom:10px; font-size:.95rem}
+.drawer .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+.overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30; display:none;
+}
+.overlay.show{display:block}
+.modal{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:50; padding:16px;
+}
+.modal.show{display:flex}
+.modal .inner{
+  max-width:560px; width:100%; max-height:84vh; overflow:auto;
+  background:linear-gradient(180deg,var(--panel),var(--bg2));
+  border:1px solid var(--brass-dk); border-radius:10px; padding:20px 22px;
+  box-shadow:0 20px 60px var(--shadow);
+}
+.modal h2{color:var(--brass); letter-spacing:.14em; font-weight:400; margin-top:0}
+footer{
+  margin-top:22px; text-align:center; color:var(--muted); font-size:.88rem; font-style:italic;
+}
+footer .ver{letter-spacing:.1em; font-style:normal}
+#toast{
+  position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px);
+  background:var(--panel); color:var(--text); border:1px solid var(--brass);
+  padding:10px 16px; border-radius:8px; opacity:0; transition:all .25s ease; z-index:60;
+  pointer-events:none; box-shadow:0 8px 30px var(--shadow);
+}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+/* ============ motion ============ */
+@keyframes penScratch{0%,100%{transform:rotate(-.35deg)}50%{transform:rotate(.35deg)}}
+@keyframes lampFlicker{0%,100%{opacity:.32}45%{opacity:.28}50%{opacity:.36}55%{opacity:.3}}
+@keyframes dropFall{0%{transform:translateY(0); opacity:0}15%{opacity:1}100%{transform:translateY(64px); opacity:0}}
+.pen-anim{animation:penScratch 6s ease-in-out infinite}
+.lamp-anim{animation:lampFlicker 7s ease-in-out infinite}
+.drop{animation:dropFall 1.6s linear infinite}
+.drop.d2{animation-delay:.55s}
+.drop.d3{animation-delay:1.1s}
+@media (prefers-reduced-motion: reduce){
+  .pen-anim,.lamp-anim,.drop{animation:none}
+  .drawer{transition:none}
+}
+@media (max-width:640px){
+  header.plate{margin:10px 8px}
+  .wrap{padding:0 8px 40px}
+}
+/* test harness */
+#test-report{max-width:900px;margin:30px auto;padding:0 16px}
+#test-report table{width:100%;border-collapse:collapse}
+#test-report td,#test-report th{border:1px solid var(--brass-dk);padding:6px 10px;text-align:left}
+.t-pass{color:var(--accent)} .t-fail{color:var(--danger)}
+</style>
+</head>
+<body>
+
+<header class="plate">
+  <div class="head-left">
+    <h1 class="sc">BAROGRAPH</h1>
+    <div class="subtitle">Field Instrument No. 067 · The Observatory Drum · Green Shoe Garage</div>
+  </div>
+  <div class="head-right">
+    <span id="src-badge" class="badge">WINDING</span>
+    <button class="btn" id="btn-theme" title="Cycle theme: night, day, high contrast">Theme</button>
+    <button class="btn" id="btn-feedback" title="Send feedback">Feedback</button>
+    <button class="btn" id="btn-about" title="About this instrument">About</button>
+    <button class="btn" id="btn-settings" title="Open settings">&#9881; Settings</button>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <section id="drum-card">
+    <div id="drum" role="img" aria-label="Seven day barograph drum with pressure and temperature traces"></div>
+    <div class="caption-plate" id="drum-caption"></div>
+  </section>
+
+  <section class="shelf" id="shelf-upper">
+    <figure class="dial-card"><div id="dial-thermo"></div><figcaption id="cap-thermo"></figcaption></figure>
+    <figure class="dial-card"><div id="dial-baro"></div><figcaption id="cap-baro"></figcaption></figure>
+    <figure class="dial-card"><div id="dial-hygro"></div><figcaption id="cap-hygro"></figcaption></figure>
+    <figure class="dial-card"><div id="dial-wind"></div><figcaption id="cap-wind"></figcaption></figure>
+  </section>
+
+  <section class="shelf" id="shelf-lower">
+    <figure class="dial-card"><div id="dial-rain"></div><figcaption id="cap-rain"></figcaption></figure>
+    <figure class="dial-card"><div id="dial-storm"></div><figcaption id="cap-storm"></figcaption></figure>
+    <div class="plaque" id="plaque-solar">
+      <h2 class="sc">HELIOGRAPHY</h2>
+      <div class="row"><span>Solar radiation</span><span id="v-solar">--</span></div>
+      <div class="row"><span>Ultraviolet index</span><span id="v-uv">--</span></div>
+      <div class="row"><span>Dew point</span><span id="v-dew">--</span></div>
+      <div class="row"><span>Feels like</span><span id="v-feels">--</span></div>
+    </div>
+    <div class="plaque" id="plaque-station">
+      <h2 class="sc">THE STATION</h2>
+      <div class="row"><span>Station</span><span id="v-station">--</span></div>
+      <div class="row"><span>Neighborhood</span><span id="v-hood">--</span></div>
+      <div class="row"><span>Observed</span><span id="v-obstime">--</span></div>
+      <div class="row"><span>Next winding</span><span id="v-next">--</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="ver">BAROGRAPH <span id="v-version"></span> · License GPL-3.0</div>
+    <div>An instrument of <a href="https://mbparks.com">mbparks.com</a> · fed by the WX-RELAY worker · Make. Hack. Learn. Share. Repeat.</div>
+  </footer>
+</main>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer-settings" aria-label="Settings">
+  <h2 class="sc">SETTINGS</h2>
+  <div class="field"><label for="s-worker">WX-RELAY worker URL</label>
+    <input type="text" id="s-worker" spellcheck="false"></div>
+  <div class="field"><label for="s-units">Units</label>
+    <select id="s-units">
+      <option value="e">Imperial (F, inHg, mph, in)</option>
+      <option value="m">Metric (C, hPa, km/h, mm)</option>
+    </select></div>
+  <div class="field"><label for="s-refresh">Refresh interval, seconds</label>
+    <input type="number" id="s-refresh" min="30" max="3600" step="10"></div>
+  <label class="check"><input type="checkbox" id="s-demo"> Demo mode (synthetic weather, no network)</label>
+  <label class="check"><input type="checkbox" id="s-debug"> Debug logging to console</label>
+  <div class="field"><label for="s-email">Feedback email (optional)</label>
+    <input type="email" id="s-email" placeholder="you@example.com"></div>
+  <div class="btnrow">
+    <button class="btn" id="s-save">Save settings</button>
+    <button class="btn" id="s-export">Export</button>
+    <button class="btn" id="s-import">Import</button>
+    <input type="file" id="s-import-file" accept=".json" style="display:none">
+  </div>
+  <div class="btnrow"><button class="btn" id="s-close">Close</button></div>
+</aside>
+
+<aside class="drawer" id="drawer-feedback" aria-label="Feedback">
+  <h2 class="sc">FEEDBACK</h2>
+  <p class="subtitle">Found a stuck needle or a smudged trace? Leave a note.</p>
+  <div class="field"><label for="f-text">Your note</label><textarea id="f-text"></textarea></div>
+  <div class="btnrow">
+    <button class="btn" id="f-copy">Copy note</button>
+    <button class="btn" id="f-mail">Email note</button>
+    <button class="btn" id="f-close">Close</button>
+  </div>
+</aside>
+
+<div class="modal" id="modal-about" role="dialog" aria-modal="true" aria-labelledby="about-title">
+  <div class="inner">
+    <h2 class="sc" id="about-title">ABOUT THIS INSTRUMENT</h2>
+    <p>BAROGRAPH is Field Instrument No. 067: a Victorian observatory drum that records live weather from a personal weather station. The drum carries seven days of chart paper. Pressure is drawn in oxblood ink, temperature in prussian. The pen rests on the present moment.</p>
+    <p>Data arrives by way of WX-RELAY, a Cloudflare Worker that keeps the Weather Underground key server-side and caches at the edge. If the wire goes quiet, the instrument falls back to its last cached readings, and failing that, to a demonstration week of synthetic weather.</p>
+    <p>Local-first: settings and the latest readings live in your browser. Export carries them out; import carries them back in. Append <b>?test=1</b> to the address to run the built-in test harness.</p>
+    <p class="subtitle">v<span class="about-ver"></span> · GPL-3.0 · Green Shoe Garage · Cumberland, Maryland</p>
+    <div class="btnrow"><button class="btn" id="about-close">Close</button></div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script id="app-script">
+'use strict';
+/* ================================================================
+   BAROGRAPH core. Pure functions live under BARO.core and BARO.svg
+   so the test harness (browser: ?test=1, or node) can exercise them
+   without a DOM. UI wiring lives under BARO.ui.
+   ================================================================ */
+const APP_VERSION = '1.0.0';
+const BARO = { core:{}, svg:{}, ui:{}, tests:[] };
+
+/* ---------------- settings & storage ---------------- */
+BARO.core.defaults = {
+  worker:'https://weatherstation.mike-268.workers.dev',
+  units:'e', refreshSec:90, theme:'night',
+  demo:false, debug:false, feedbackEmail:''
+};
+BARO.core.store = {
+  get(key, fallback){
+    try{ const raw = localStorage.getItem(key); return raw==null ? fallback : JSON.parse(raw); }
+    catch(e){ return fallback; }
+  },
+  set(key, value){
+    try{ localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch(e){ return false; }
+  }
+};
+BARO.core.loadSettings = function(){
+  return Object.assign({}, BARO.core.defaults, BARO.core.store.get('baro.settings', {}));
+};
+
+/* ---------------- units ---------------- */
+BARO.core.labels = function(units){
+  if(units==='m') return { t:'\u00B0C', p:'hPa', w:'km/h', r:'mm', gridStep:4, rainMax:25 };
+  return { t:'\u00B0F', p:'inHg', w:'mph', r:'in', gridStep:0.2, rainMax:1 };
+};
+BARO.core.unitsBlock = function(obs){
+  if(!obs) return {};
+  return obs.imperial || obs.metric || obs.uk_hybrid || obs.metric_si || {};
+};
+BARO.core.pick = function(u){
+  for(let i=1;i<arguments.length;i++){
+    const k = arguments[i];
+    if(u && u[k]!=null) return u[k];
+  }
+  return null;
+};
+
+/* ---------------- normalization ---------------- */
+BARO.core.normCurrent = function(payload){
+  const obs = payload && payload.observations && payload.observations[0];
+  if(!obs) return null;
+  const u = BARO.core.unitsBlock(obs);
+  return {
+    epoch: obs.epoch*1000,
+    obsTimeLocal: obs.obsTimeLocal || '',
+    stationID: obs.stationID || '',
+    neighborhood: obs.neighborhood || '',
+    temp: BARO.core.pick(u,'temp'),
+    dewpt: BARO.core.pick(u,'dewpt'),
+    heatIndex: BARO.core.pick(u,'heatIndex'),
+    windChill: BARO.core.pick(u,'windChill'),
+    humidity: obs.humidity!=null ? obs.humidity : null,
+    windSpeed: BARO.core.pick(u,'windSpeed'),
+    windGust: BARO.core.pick(u,'windGust'),
+    winddir: obs.winddir!=null ? obs.winddir : null,
+    pressure: BARO.core.pick(u,'pressure'),
+    precipRate: BARO.core.pick(u,'precipRate'),
+    precipTotal: BARO.core.pick(u,'precipTotal'),
+    solarRadiation: obs.solarRadiation!=null ? obs.solarRadiation : null,
+    uv: obs.uv!=null ? obs.uv : null
+  };
+};
+/* One trace point from any observation record (rapid or hourly history). */
+BARO.core.tracePoint = function(obs){
+  const u = BARO.core.unitsBlock(obs);
+  const press = BARO.core.pick(u,'pressure','pressureMax','pressureMin');
+  const temp = BARO.core.pick(u,'temp','tempAvg','tempHigh');
+  const hum = obs.humidity!=null ? obs.humidity : (obs.humidityAvg!=null?obs.humidityAvg:null);
+  if(obs.epoch==null || (press==null && temp==null)) return null;
+  return { t: obs.epoch*1000, press: press, temp: temp, hum: hum };
+};
+/* Merge history day payloads plus today's rapid payload into one series. */
+BARO.core.buildSeries = function(payloads){
+  const pts = [];
+  (payloads||[]).forEach(function(p){
+    const list = p && p.observations ? p.observations : [];
+    list.forEach(function(o){
+      const pt = BARO.core.tracePoint(o);
+      if(pt) pts.push(pt);
+    });
+  });
+  pts.sort(function(a,b){ return a.t-b.t; });
+  /* de-duplicate identical timestamps */
+  const out = [];
+  for(let i=0;i<pts.length;i++){
+    if(!out.length || pts[i].t !== out[out.length-1].t) out.push(pts[i]);
+  }
+  return out;
+};
+
+/* ---------------- meteorology ---------------- */
+BARO.core.pressureDelta = function(series, hoursBack){
+  if(!series || series.length<2) return null;
+  const last = series[series.length-1];
+  if(last.press==null) return null;
+  const target = last.t - hoursBack*3600*1000;
+  let ref = null;
+  for(let i=series.length-1;i>=0;i--){
+    if(series[i].press!=null && series[i].t <= target){ ref = series[i]; break; }
+  }
+  if(!ref) return null;
+  return last.press - ref.press;
+};
+BARO.core.trendWords = function(delta, units){
+  if(delta==null) return 'Trend unknown';
+  const d = units==='m' ? delta/33.8639 : delta; /* work in inHg */
+  if(d >= 0.06) return 'Rising rapidly';
+  if(d >= 0.02) return 'Rising';
+  if(d <= -0.06) return 'Falling rapidly';
+  if(d <= -0.02) return 'Falling';
+  return 'Steady';
+};
+BARO.core.stormGlassState = function(delta, units){
+  if(delta==null) return 'faint';
+  const d = units==='m' ? delta/33.8639 : delta;
+  if(d <= -0.06) return 'ferns';
+  if(d <= -0.02) return 'blooms';
+  if(d >= 0.02) return 'clear';
+  return 'faint';
+};
+BARO.core.stormGlassWords = function(state){
+  return { clear:'Liquid clear. Fair weather promised.',
+           faint:'A faint haze in suspension. No great change.',
+           blooms:'Small stars in bloom. Weather on the turn.',
+           ferns:'Fern fronds climbing. A storm is gathering.' }[state] || '';
+};
+BARO.core.compassPoint = function(deg){
+  if(deg==null) return '--';
+  const pts = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return pts[Math.round(((deg%360)+360)%360 / 22.5) % 16];
+};
+
+/* ---------------- color math (for tests) ---------------- */
+BARO.core.luminance = function(hex){
+  const h = hex.replace('#','');
+  const full = h.length===3 ? h.split('').map(function(c){return c+c;}).join('') : h;
+  const rgb = [0,1,2].map(function(i){
+    let c = parseInt(full.substr(i*2,2),16)/255;
+    return c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+  });
+  return 0.2126*rgb[0] + 0.7152*rgb[1] + 0.0722*rgb[2];
+};
+BARO.core.contrast = function(a,b){
+  const la = BARO.core.luminance(a), lb = BARO.core.luminance(b);
+  const hi = Math.max(la,lb), lo = Math.min(la,lb);
+  return (hi+0.05)/(lo+0.05);
+};
+/* Theme palettes duplicated here so tests can verify them and so SVG
+   builders can be rasterized outside a browser. In the browser these
+   are the source of truth pushed into CSS custom properties? No:
+   CSS above is authoritative for layout chrome; these mirror the
+   trace-critical colors and are asserted equal in the harness. */
+BARO.core.palettes = {
+  night:{ bg:'#151009', panel:'#241b12', text:'#ead9b5', muted:'#b39a6b',
+          brass:'#c9a34a', brassHi:'#ecd18a', brassDk:'#6f5520',
+          paper:'#e9dcba', paperDk:'#d8c79c', grid:'#b06a3e', gridSoft:'#caa27a',
+          ink:'#7a2222', ink2:'#2e4d5e', mercury:'#a12b1f', glass:'#cfe4de',
+          accent:'#7fae98', danger:'#c0533a' },
+  day:{ bg:'#efe4cc', panel:'#f2e7cd', text:'#2c2010', muted:'#6b5636',
+        brass:'#8a6a28', brassHi:'#c9a34a', brassDk:'#5c4517',
+        paper:'#f6eecf', paperDk:'#e8dcb8', grid:'#a55c32', gridSoft:'#c08a5c',
+        ink:'#7a2222', ink2:'#2e4d5e', mercury:'#a12b1f', glass:'#b9d4cc',
+        accent:'#3f7a63', danger:'#a13a24' },
+  contrast:{ bg:'#000000', panel:'#0a0a0a', text:'#ffffff', muted:'#e6e6e6',
+        brass:'#ffd75e', brassHi:'#fff2c0', brassDk:'#b89a3e',
+        paper:'#ffffff', paperDk:'#f0f0f0', grid:'#767676', gridSoft:'#9a9a9a',
+        ink:'#000000', ink2:'#003b8e', mercury:'#b00000', glass:'#dff2ec',
+        accent:'#ffea00', danger:'#ff5c5c' }
+};
+
+/* ---------------- demo weather ---------------- */
+BARO.core.demoSeries = function(now, units){
+  const metric = units==='m';
+  const pts = [];
+  const start = now - 7*24*3600*1000;
+  for(let t=start; t<=now; t+=1800*1000){
+    const days = (t-start)/(24*3600*1000);
+    const hourOfDay = new Date(t).getHours() + new Date(t).getMinutes()/60;
+    /* a front passes on day 5: pressure sags then recovers */
+    const front = Math.exp(-Math.pow((days-5)/0.6,2));
+    let press = 29.98 + 0.22*Math.sin(days*1.1) - 0.55*front;
+    let temp = 58 + 16*Math.sin((hourOfDay-9)/24*2*Math.PI) + 4*Math.sin(days*0.9) - 10*front;
+    let hum = 55 - 14*Math.sin((hourOfDay-9)/24*2*Math.PI) + 30*front;
+    if(metric){ press *= 33.8639; temp = (temp-32)*5/9; }
+    pts.push({ t:t, press:+press.toFixed(metric?1:3), temp:+temp.toFixed(1), hum:Math.max(15,Math.min(100,Math.round(hum))) });
+  }
+  return pts;
+};
+BARO.core.demoCurrent = function(now, units){
+  const s = BARO.core.demoSeries(now, units);
+  const last = s[s.length-1];
+  const metric = units==='m';
+  return {
+    epoch: now, obsTimeLocal: new Date(now).toLocaleString(),
+    stationID:'KMDDEMO01', neighborhood:'Demonstration Ridge',
+    temp:last.temp, dewpt:+(last.temp - (metric?4:8)).toFixed(1),
+    heatIndex:last.temp, windChill:last.temp,
+    humidity:last.hum,
+    windSpeed:metric?11.3:7.0, windGust:metric?19.3:12.0, winddir:292,
+    pressure:last.press,
+    precipRate:0.0, precipTotal:metric?4.6:0.18,
+    solarRadiation:412.5, uv:4
+  };
+};
+
+/* ================================================================
+   SVG builders. Each returns a string. All take a palette P.
+   ================================================================ */
+const NS = 'xmlns="http://www.w3.org/2000/svg"';
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function fmt(v, digits){ return v==null ? '--' : Number(v).toFixed(digits==null?1:digits); }
+
+/* ----- drum geometry ----- */
+BARO.core.drumGeom = { cx:450, R:319, xPad:131, yTop:70, yBot:430, sag:26, thetaDeg:150 };
+BARO.core.drumX = function(u){
+  const g = BARO.core.drumGeom;
+  const th = (u-0.5) * g.thetaDeg * Math.PI/180;
+  return g.cx + g.R * Math.sin(th) / Math.sin(g.thetaDeg/2 * Math.PI/180);
+};
+BARO.core.drumSag = function(x){
+  const g = BARO.core.drumGeom;
+  const t = (x - BARO.core.drumX(0)) / (BARO.core.drumX(1) - BARO.core.drumX(0));
+  return 2*t*(1-t)*2*g.sag; /* quadratic bezier vertical offset, 0 at edges, sag*? at center */
+};
+
+BARO.svg.drum = function(series, opts){
+  const P = opts.palette, L = opts.labels, units = opts.units;
+  const g = BARO.core.drumGeom;
+  const xL = BARO.core.drumX(0), xR = BARO.core.drumX(1);
+  const now = opts.now || Date.now();
+  const t1 = now, t0 = now - 7*24*3600*1000;
+  const inWindow = (series||[]).filter(function(p){ return p.t>=t0 && p.t<=t1; });
+
+  /* value ranges */
+  const pVals = inWindow.map(function(p){return p.press;}).filter(function(v){return v!=null;});
+  const tVals = inWindow.map(function(p){return p.temp;}).filter(function(v){return v!=null;});
+  const pPad = units==='m' ? 2 : 0.06;
+  let pMin = pVals.length ? Math.min.apply(null,pVals)-pPad : (units==='m'?1000:29.5);
+  let pMax = pVals.length ? Math.max.apply(null,pVals)+pPad : (units==='m'?1030:30.4);
+  if(pMax-pMin < (units==='m'?6:0.2)){ const m=(pMax+pMin)/2, h=(units==='m'?3:0.1); pMin=m-h; pMax=m+h; }
+  const tPadV = units==='m' ? 2 : 4;
+  let tMin = tVals.length ? Math.min.apply(null,tVals)-tPadV : 0;
+  let tMax = tVals.length ? Math.max.apply(null,tVals)+tPadV : 1;
+
+  const yA = g.yTop+40, yB = g.yBot-14; /* value band at drum center */
+  function yPress(v){ return yB - (v-pMin)/(pMax-pMin)*(yB-yA); }
+  function yTemp(v){ return yB - (v-tMin)/(tMax-tMin)*(yB-yA); }
+  function xOf(t){ return BARO.core.drumX((t-t0)/(t1-t0)); }
+  function bow(x, y){ return y + BARO.core.drumSag(x) - BARO.core.drumSag(g.cx); }
+
+  let s = '<svg '+NS+' viewBox="0 0 940 560" role="img" style="font-family:\'IM Fell English\',Georgia,serif">';
+  s += '<defs>'
+    + '<linearGradient id="gDrumShade" x1="0" y1="0" x2="1" y2="0">'
+    + '<stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset=".12" stop-color="#000" stop-opacity=".12"/>'
+    + '<stop offset=".5" stop-color="#fff" stop-opacity=".08"/>'
+    + '<stop offset=".88" stop-color="#000" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".42"/>'
+    + '</linearGradient>'
+    + '<linearGradient id="gBrass" x1="0" y1="0" x2="0" y2="1">'
+    + '<stop offset="0" stop-color="'+P.brassHi+'"/><stop offset=".5" stop-color="'+P.brass+'"/><stop offset="1" stop-color="'+P.brassDk+'"/>'
+    + '</linearGradient>'
+    + '<linearGradient id="gPaper" x1="0" y1="0" x2="0" y2="1">'
+    + '<stop offset="0" stop-color="'+P.paper+'"/><stop offset="1" stop-color="'+P.paperDk+'"/>'
+    + '</linearGradient>'
+    + '</defs>';
+
+  /* base plinth and pillars */
+  s += '<rect x="60" y="500" width="820" height="26" rx="6" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  s += '<rect x="'+(xL-34)+'" y="52" width="18" height="452" rx="5" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  s += '<rect x="'+(xR+16)+'" y="52" width="18" height="452" rx="5" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  /* spindle */
+  s += '<rect x="'+(g.cx-7)+'" y="26" width="14" height="40" rx="4" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  s += '<circle cx="'+g.cx+'" cy="24" r="9" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+
+  /* paper cylinder */
+  const topQ = 'M'+xL+','+g.yTop+' Q'+g.cx+','+(g.yTop+2*g.sag)+' '+xR+','+g.yTop;
+  const botQ = 'L'+xR+','+g.yBot+' Q'+g.cx+','+(g.yBot+2*g.sag)+' '+xL+','+g.yBot+' Z';
+  s += '<path d="'+topQ+botQ+'" fill="url(#gPaper)" stroke="'+P.brassDk+'" stroke-width="1.5"/>';
+  /* top rim back edge */
+  s += '<path d="M'+xL+','+g.yTop+' Q'+g.cx+','+(g.yTop-2*g.sag)+' '+xR+','+g.yTop+'" fill="none" stroke="'+P.brassDk+'" stroke-width="1.5"/>';
+
+  /* horizontal pressure grid */
+  const step = L.gridStep;
+  const gridStart = Math.ceil(pMin/step)*step;
+  for(let v=gridStart; v<=pMax+1e-9; v+=step){
+    const y = yPress(v);
+    s += '<path d="M'+xL+','+y+' Q'+g.cx+','+(y+2*g.sag)+' '+xR+','+y+'" fill="none" stroke="'+P.grid+'" stroke-width=".8" opacity=".7"/>';
+    s += '<text x="'+(xL-10)+'" y="'+(y+4)+'" text-anchor="end" font-size="13" fill="'+P.muted+'">'+ (units==='m'? Math.round(v) : v.toFixed(1)) +'</text>';
+  }
+  s += '<text x="'+(xL-10)+'" y="'+(g.yTop-8)+'" text-anchor="end" font-size="12" font-style="italic" fill="'+P.muted+'">'+L.p+'</text>';
+  /* temp side ticks */
+  [tMin, (tMin+tMax)/2, tMax].forEach(function(v){
+    const y = yTemp(v);
+    s += '<text x="'+(xR+8)+'" y="'+(y+4)+'" font-size="12" fill="'+P.ink2+'">'+Math.round(v)+'</text>';
+  });
+  s += '<text x="'+(xR+8)+'" y="'+(g.yTop-8)+'" font-size="12" font-style="italic" fill="'+P.ink2+'">'+L.t+'</text>';
+
+  /* day boundary lines and labels */
+  const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const d0 = new Date(t0); d0.setHours(0,0,0,0);
+  for(let dt = d0.getTime(); dt <= t1; dt += 24*3600*1000){
+    if(dt < t0) continue;
+    const x = xOf(dt);
+    const topY = g.yTop + BARO.core.drumSag(x);
+    const botY = g.yBot + BARO.core.drumSag(x);
+    s += '<line x1="'+x+'" y1="'+topY+'" x2="'+x+'" y2="'+botY+'" stroke="'+P.gridSoft+'" stroke-width=".8" stroke-dasharray="3 4" opacity=".8"/>';
+    const d = new Date(dt);
+    s += '<text x="'+x+'" y="'+(botY+18)+'" text-anchor="middle" font-size="12" fill="'+P.muted+'">'+dayNames[d.getDay()]+' '+d.getDate()+'</text>';
+  }
+
+  /* traces */
+  function tracePath(key, yFn){
+    let d = '', pen = false;
+    inWindow.forEach(function(p){
+      if(p[key]==null){ pen=false; return; }
+      const x = xOf(p.t), y = bow(x, yFn(p[key]));
+      d += (pen?'L':'M') + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+      pen = true;
+    });
+    return d;
+  }
+  const dTemp = tracePath('temp', yTemp);
+  if(dTemp) s += '<path d="'+dTemp+'" fill="none" stroke="'+P.ink2+'" stroke-width="1.6" opacity=".85"/>';
+  const dPress = tracePath('press', yPress);
+  if(dPress) s += '<path d="'+dPress+'" fill="none" stroke="'+P.ink+'" stroke-width="2.2"/>';
+
+  /* curvature shading over paper */
+  s += '<path d="'+topQ+botQ+'" fill="url(#gDrumShade)" stroke="none"/>';
+
+  /* pen arm to last pressure point */
+  const lastP = inWindow.filter(function(p){return p.press!=null;}).pop();
+  if(lastP){
+    const px = xOf(lastP.t), py = bow(px, yPress(lastP.press));
+    const pivX = xR + 58, pivY = 120;
+    s += '<g class="pen-anim" style="transform-origin:'+pivX+'px '+pivY+'px">';
+    s += '<path d="M'+pivX+','+pivY+' Q'+((pivX+px)/2)+','+(Math.min(pivY,py)-24)+' '+px+','+py+'" fill="none" stroke="url(#gBrass)" stroke-width="5" stroke-linecap="round"/>';
+    s += '<circle cx="'+px+'" cy="'+py+'" r="3.4" fill="'+P.ink+'"/>';
+    s += '</g>';
+    s += '<circle cx="'+pivX+'" cy="'+pivY+'" r="10" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+    s += '<circle cx="'+pivX+'" cy="'+pivY+'" r="3.5" fill="'+P.brassDk+'"/>';
+    s += '<rect x="'+(pivX-8)+'" y="'+pivY+'" width="16" height="384" rx="5" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  }
+
+  /* maker's plate */
+  s += '<text x="'+g.cx+'" y="519" text-anchor="middle" font-size="13" letter-spacing="3" fill="'+P.bg+'">SEVEN-DAY RECORD &#183; PRESSURE IN OXBLOOD &#183; TEMPERATURE IN PRUSSIAN</text>';
+  s += '</svg>';
+  return s;
+};
+
+/* ----- shared dial chrome ----- */
+function bezel(P, cx, cy, r){
+  return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="url(#gBrass)" stroke="'+P.brassDk+'" stroke-width="1.5"/>'
+       + '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r-8)+'" fill="url(#gPaper)" stroke="'+P.brassDk+'" stroke-width="1"/>';
+}
+function dialDefs(P){
+  return '<defs>'
+   + '<linearGradient id="gBrass" x1="0" y1="0" x2="0" y2="1">'
+   + '<stop offset="0" stop-color="'+P.brassHi+'"/><stop offset=".5" stop-color="'+P.brass+'"/><stop offset="1" stop-color="'+P.brassDk+'"/></linearGradient>'
+   + '<linearGradient id="gPaper" x1="0" y1="0" x2="0" y2="1">'
+   + '<stop offset="0" stop-color="'+P.paper+'"/><stop offset="1" stop-color="'+P.paperDk+'"/></linearGradient>'
+   + '</defs>';
+}
+function polar(cx, cy, r, deg){
+  const a = (deg-90)*Math.PI/180;
+  return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+}
+
+/* ----- barometer ----- */
+BARO.svg.barometer = function(value, setHand, opts){
+  const P = opts.palette, L = opts.labels, units = opts.units;
+  const lo = units==='m' ? 960 : 28.4, hi = units==='m' ? 1050 : 31.0;
+  const a0 = -130, a1 = 130;
+  function ang(v){ return a0 + (Math.min(Math.max(v,lo),hi)-lo)/(hi-lo)*(a1-a0); }
+  const cx=110, cy=110, r=104;
+  let s = '<svg '+NS+' viewBox="0 0 220 220" style="font-family:\'IM Fell English\',Georgia,serif">'+dialDefs(P)+bezel(P,cx,cy,r);
+  const tickStep = units==='m' ? 5 : 0.2;
+  for(let v=lo; v<=hi+1e-9; v+=tickStep){
+    const major = units==='m' ? (Math.round(v)%10===0) : (Math.abs(v*10 - Math.round(v*10))<1e-6 && Math.round(v*10)%2===0);
+    const rr = major? 14 : 8;
+    const p1 = polar(cx,cy,r-12,ang(v)), p2 = polar(cx,cy,r-12-rr,ang(v));
+    s += '<line x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+'" stroke="'+P.ink+'" stroke-width="'+(major?1.6:0.9)+'"/>';
+    if(major){
+      const pt = polar(cx,cy,r-36,ang(v));
+      s += '<text x="'+pt[0]+'" y="'+(pt[1]+4)+'" text-anchor="middle" font-size="11" fill="'+P.ink+'">'+(units==='m'?Math.round(v):v.toFixed(1))+'</text>';
+    }
+  }
+  const words = units==='m' ? [[968,'RAIN'],[1005,'CHANGE'],[1042,'FAIR']] : [[28.7,'RAIN'],[29.7,'CHANGE'],[30.7,'FAIR']];
+  words.forEach(function(w){
+    const pt = polar(cx,cy,r-54,ang(w[0]));
+    s += '<text x="'+pt[0]+'" y="'+(pt[1]+4)+'" text-anchor="middle" font-size="10" letter-spacing="1.5" font-style="italic" fill="'+P.muted+'">'+w[1]+'</text>';
+  });
+  if(setHand!=null){
+    const p = polar(cx,cy,r-20,ang(setHand));
+    s += '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="'+P.brass+'" stroke-width="1.4" opacity=".9"/>';
+  }
+  if(value!=null){
+    const p = polar(cx,cy,r-22,ang(value));
+    const tail = polar(cx,cy,18,ang(value)+180);
+    s += '<line x1="'+tail[0]+'" y1="'+tail[1]+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="'+P.ink+'" stroke-width="2.6" stroke-linecap="round"/>';
+  }
+  s += '<circle cx="'+cx+'" cy="'+cy+'" r="7" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  s += '<text x="'+cx+'" y="'+(cy+40)+'" text-anchor="middle" font-size="12" letter-spacing="2" fill="'+P.ink+'">'+esc(fmt(value, units==='m'?1:2))+' '+L.p+'</text>';
+  s += '</svg>';
+  return s;
+};
+
+/* ----- hygrometer ----- */
+BARO.svg.hygrometer = function(hum, opts){
+  const P = opts.palette;
+  const cx=110, cy=110, r=104, a0=-130, a1=130;
+  function ang(v){ return a0 + Math.min(Math.max(v,0),100)/100*(a1-a0); }
+  let s = '<svg '+NS+' viewBox="0 0 220 220" style="font-family:\'IM Fell English\',Georgia,serif">'+dialDefs(P)+bezel(P,cx,cy,r);
+  for(let v=0; v<=100; v+=5){
+    const major = v%20===0;
+    const p1 = polar(cx,cy,r-12,ang(v)), p2 = polar(cx,cy,r-12-(major?14:8),ang(v));
+    s += '<line x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+'" stroke="'+P.ink+'" stroke-width="'+(major?1.6:0.9)+'"/>';
+    if(major){
+      const pt = polar(cx,cy,r-36,ang(v));
+      s += '<text x="'+pt[0]+'" y="'+(pt[1]+4)+'" text-anchor="middle" font-size="11" fill="'+P.ink+'">'+v+'</text>';
+    }
+  }
+  [[12,'DRY'],[50,'TEMPERATE'],[88,'DAMP']].forEach(function(w){
+    const pt = polar(cx,cy,r-56,ang(w[0]));
+    s += '<text x="'+pt[0]+'" y="'+(pt[1]+4)+'" text-anchor="middle" font-size="9.5" letter-spacing="1.4" font-style="italic" fill="'+P.muted+'">'+w[1]+'</text>';
+  });
+  if(hum!=null){
+    const p = polar(cx,cy,r-22,ang(hum));
+    const tail = polar(cx,cy,18,ang(hum)+180);
+    s += '<line x1="'+tail[0]+'" y1="'+tail[1]+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="'+P.ink+'" stroke-width="2.6" stroke-linecap="round"/>';
+  }
+  s += '<circle cx="'+cx+'" cy="'+cy+'" r="7" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  s += '<text x="'+cx+'" y="'+(cy+40)+'" text-anchor="middle" font-size="12" letter-spacing="2" fill="'+P.ink+'">'+(hum==null?'--':Math.round(hum))+' % R.H.</text>';
+  s += '</svg>';
+  return s;
+};
+
+/* ----- wind rose ----- */
+BARO.svg.windRose = function(dir, speed, gust, opts){
+  const P = opts.palette, L = opts.labels;
+  const cx=110, cy=110, r=104;
+  let s = '<svg '+NS+' viewBox="0 0 220 220" style="font-family:\'IM Fell English\',Georgia,serif">'+dialDefs(P)+bezel(P,cx,cy,r);
+  const pts = ['N','NE','E','SE','S','SW','W','NW'];
+  pts.forEach(function(name, i){
+    const a = i*45;
+    const pt = polar(cx,cy,r-24,a);
+    s += '<text x="'+pt[0]+'" y="'+(pt[1]+4)+'" text-anchor="middle" font-size="'+(i%2===0?13:10)+'" fill="'+P.ink+'">'+name+'</text>';
+    const p1 = polar(cx,cy,r-12,a), p2 = polar(cx,cy,r-12-6,a);
+    s += '<line x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+'" stroke="'+P.ink+'" stroke-width="1.2"/>';
+  });
+  /* 16-point star card */
+  for(let i=0;i<8;i++){
+    const a=i*45, long=i%2===0;
+    const tip = polar(cx,cy,long?58:40,a);
+    const l = polar(cx,cy,9,a-90), rr = polar(cx,cy,9,a+90);
+    s += '<path d="M'+tip[0]+','+tip[1]+' L'+l[0]+','+l[1]+' L'+rr[0]+','+rr[1]+' Z" fill="'+(long?P.grid:P.gridSoft)+'" opacity=".5"/>';
+  }
+  if(dir!=null){
+    const head = polar(cx,cy,r-34,dir);
+    const tail = polar(cx,cy,r-70,dir+180);
+    s += '<line x1="'+tail[0]+'" y1="'+tail[1]+'" x2="'+head[0]+'" y2="'+head[1]+'" stroke="'+P.ink+'" stroke-width="2.4"/>';
+    const f1 = polar(head[0],head[1],10,dir+160), f2 = polar(head[0],head[1],10,dir-160);
+    s += '<path d="M'+head[0]+','+head[1]+' L'+f1[0]+','+f1[1]+' M'+head[0]+','+head[1]+' L'+f2[0]+','+f2[1]+'" stroke="'+P.ink+'" stroke-width="2.4" fill="none"/>';
+  }
+  s += '<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  s += '<text x="'+cx+'" y="'+(cy+44)+'" text-anchor="middle" font-size="12" letter-spacing="1.5" fill="'+P.ink+'">'+esc(fmt(speed))+' '+L.w+(gust!=null?' &#183; G '+esc(fmt(gust)):'')+'</text>';
+  s += '</svg>';
+  return s;
+};
+
+/* ----- thermometer ----- */
+BARO.svg.thermometer = function(temp, dew, opts){
+  const P = opts.palette, L = opts.labels, units = opts.units;
+  const lo = units==='m'?-30:-20, hi = units==='m'?45:110;
+  const x=62, yTop=18, yBot=176, bulbY=196;
+  function y(v){ return yBot - (Math.min(Math.max(v,lo),hi)-lo)/(hi-lo)*(yBot-yTop); }
+  let s = '<svg '+NS+' viewBox="0 0 220 230" style="font-family:\'IM Fell English\',Georgia,serif">'+dialDefs(P);
+  s += '<rect x="14" y="6" width="192" height="218" rx="12" fill="url(#gPaper)" stroke="'+P.brassDk+'" stroke-width="1.5"/>';
+  s += '<rect x="14" y="6" width="192" height="218" rx="12" fill="none" stroke="url(#gBrass)" stroke-width="3" opacity=".6"/>';
+  /* scale */
+  const stepT = units==='m'?5:10;
+  for(let v=Math.ceil(lo/stepT)*stepT; v<=hi; v+=stepT){
+    const yy=y(v);
+    s += '<line x1="'+(x-14)+'" y1="'+yy+'" x2="'+(x-4)+'" y2="'+yy+'" stroke="'+P.ink+'" stroke-width="1.2"/>';
+    s += '<text x="'+(x-18)+'" y="'+(yy+4)+'" text-anchor="end" font-size="10.5" fill="'+P.ink+'">'+v+'</text>';
+  }
+  /* tube */
+  s += '<rect x="'+(x-5)+'" y="'+(yTop-4)+'" width="10" height="'+(bulbY-yTop)+'" rx="5" fill="'+P.glass+'" stroke="'+P.brassDk+'" stroke-width="1"/>';
+  if(temp!=null){
+    s += '<rect x="'+(x-3)+'" y="'+y(temp)+'" width="6" height="'+(bulbY-y(temp))+'" fill="'+P.mercury+'"/>';
+  }
+  s += '<circle cx="'+x+'" cy="'+bulbY+'" r="13" fill="'+P.mercury+'" stroke="'+P.brassDk+'" stroke-width="1"/>';
+  s += '<circle cx="'+(x-4)+'" cy="'+(bulbY-4)+'" r="3" fill="#fff" opacity=".35"/>';
+  if(dew!=null){
+    const yy=y(dew);
+    s += '<path d="M'+(x+10)+','+yy+' l 10,-5 l 0,10 Z" fill="'+P.ink2+'"/>';
+    s += '<text x="'+(x+24)+'" y="'+(yy+4)+'" font-size="10" font-style="italic" fill="'+P.ink2+'">dew</text>';
+  }
+  s += '<text x="142" y="96" text-anchor="middle" font-size="26" fill="'+P.ink+'">'+esc(fmt(temp))+'</text>';
+  s += '<text x="142" y="116" text-anchor="middle" font-size="13" letter-spacing="2" fill="'+P.muted+'">'+L.t+'</text>';
+  s += '<text x="142" y="150" text-anchor="middle" font-size="11" font-style="italic" fill="'+P.muted+'">mercury column</text>';
+  s += '</svg>';
+  return s;
+};
+
+/* ----- rain gauge ----- */
+BARO.svg.rainGauge = function(total, rate, opts){
+  const P = opts.palette, L = opts.labels, units = opts.units;
+  const max = Math.max(opts.labels.rainMax, total!=null?Math.ceil(total/(units==='m'?5:0.5))*(units==='m'?5:0.5):0);
+  const x0=78, x1=142, yTop=26, yBot=190;
+  function y(v){ return yBot - Math.min(v,max)/max*(yBot-yTop); }
+  let s = '<svg '+NS+' viewBox="0 0 220 230" style="font-family:\'IM Fell English\',Georgia,serif">'+dialDefs(P);
+  s += '<rect x="14" y="6" width="192" height="218" rx="12" fill="url(#gPaper)" stroke="'+P.brassDk+'" stroke-width="1.5"/>';
+  /* glass cylinder */
+  s += '<rect x="'+x0+'" y="'+yTop+'" width="'+(x1-x0)+'" height="'+(yBot-yTop)+'" rx="8" fill="'+P.glass+'" opacity=".45" stroke="'+P.brassDk+'" stroke-width="1.2"/>';
+  if(total!=null && total>0){
+    const yy = y(total);
+    s += '<rect x="'+(x0+3)+'" y="'+yy+'" width="'+(x1-x0-6)+'" height="'+(yBot-3-yy)+'" rx="4" fill="'+P.ink2+'" opacity=".55"/>';
+    s += '<ellipse cx="'+((x0+x1)/2)+'" cy="'+yy+'" rx="'+((x1-x0)/2-3)+'" ry="3.5" fill="'+P.ink2+'" opacity=".75"/>';
+  }
+  /* scale */
+  const stepR = units==='m' ? Math.max(5, max/5) : Math.max(0.25, max/4);
+  for(let v=0; v<=max+1e-9; v+=stepR){
+    const yy=y(v);
+    s += '<line x1="'+(x0-10)+'" y1="'+yy+'" x2="'+(x0-2)+'" y2="'+yy+'" stroke="'+P.ink+'" stroke-width="1.1"/>';
+    s += '<text x="'+(x0-14)+'" y="'+(yy+4)+'" text-anchor="end" font-size="10.5" fill="'+P.ink+'">'+(units==='m'?Math.round(v):v.toFixed(2).replace(/0+$/,'').replace(/\.$/,''))+'</text>';
+  }
+  /* falling drops when raining */
+  if(rate!=null && rate>0){
+    [0,1,2].forEach(function(i){
+      s += '<circle class="drop d'+(i+1)+'" cx="'+(x0+12+i*20)+'" cy="'+(yTop-8)+'" r="2.6" fill="'+P.ink2+'"/>';
+    });
+  }
+  s += '<text x="110" y="214" text-anchor="middle" font-size="11.5" letter-spacing="1" fill="'+P.ink+'">'+esc(fmt(total, units==='m'?1:2))+' '+L.r+' today'+(rate>0?' &#183; raining':'')+'</text>';
+  s += '</svg>';
+  return s;
+};
+
+/* ----- storm glass ----- */
+BARO.svg.stormGlass = function(state, opts){
+  const P = opts.palette;
+  let s = '<svg '+NS+' viewBox="0 0 220 230" style="font-family:\'IM Fell English\',Georgia,serif">'+dialDefs(P);
+  s += '<rect x="14" y="6" width="192" height="218" rx="12" fill="url(#gPaper)" stroke="'+P.brassDk+'" stroke-width="1.5"/>';
+  /* vial */
+  s += '<path d="M92,30 h36 v14 q14,10 14,34 v96 q0,20 -32,20 q-32,0 -32,-20 v-96 q0,-24 14,-34 Z" fill="'+P.glass+'" opacity=".5" stroke="'+P.brassDk+'" stroke-width="1.4"/>';
+  s += '<rect x="88" y="20" width="44" height="12" rx="4" fill="url(#gBrass)" stroke="'+P.brassDk+'"/>';
+  const cx=110;
+  if(state==='faint'){
+    s += '<g fill="'+P.gridSoft+'" opacity=".7">';
+    for(let i=0;i<10;i++){ s += '<circle cx="'+(92+(i*13)%40)+'" cy="'+(150+((i*29)%28))+'" r="1.6"/>'; }
+    s += '</g>';
+  } else if(state==='blooms'){
+    s += '<g stroke="'+P.gridSoft+'" stroke-width="1.4" opacity=".85">';
+    [[100,150],[122,132],[110,168],[96,120]].forEach(function(pt){
+      for(let a=0;a<360;a+=60){
+        const e = polar(pt[0],pt[1],7,a);
+        s += '<line x1="'+pt[0]+'" y1="'+pt[1]+'" x2="'+e[0]+'" y2="'+e[1]+'"/>';
+      }
+    });
+    s += '</g>';
+  } else if(state==='ferns'){
+    s += '<g stroke="'+P.gridSoft+'" stroke-width="1.3" fill="none" opacity=".9">';
+    [[98,182,-8],[112,186,4],[124,180,10]].forEach(function(f){
+      let d = 'M'+f[0]+','+f[1];
+      for(let i=1;i<=6;i++){
+        const yy=f[1]-i*16, xx=f[0]+f[2]*Math.sin(i*0.7);
+        d += ' L'+xx+','+yy;
+        s += '<path d="M'+xx+','+yy+' l -8,-5 M'+xx+','+yy+' l 8,-5" stroke="'+P.gridSoft+'" stroke-width="1"/>';
+      }
+      s += '<path d="'+d+'"/>';
+    });
+    s += '</g>';
+  }
+  /* liquid line */
+  s += '<ellipse cx="'+cx+'" cy="70" rx="24" ry="4" fill="'+P.glass+'" opacity=".9"/>';
+  s += '<text x="110" y="214" text-anchor="middle" font-size="11.5" letter-spacing="1.5" fill="'+P.ink+'">STORM GLASS</text>';
+  s += '</svg>';
+  return s;
+};
+
+/* ================================================================
+   UI
+   ================================================================ */
+BARO.ui.state = { settings:null, current:null, series:[], source:'winding', lastFull:0, nextAt:0 };
+
+BARO.ui.dbg = function(){
+  if(BARO.ui.state.settings && BARO.ui.state.settings.debug){
+    console.log.apply(console, ['[barograph]'].concat([].slice.call(arguments)));
+  }
+};
+BARO.ui.palette = function(){
+  const theme = BARO.ui.state.settings.theme;
+  return BARO.core.palettes[theme] || BARO.core.palettes.night;
+};
+BARO.ui.fetchJSON = async function(path){
+  const base = BARO.ui.state.settings.worker.replace(/\/+$/,'');
+  const sep = path.indexOf('?')>=0 ? '&' : '?';
+  const url = base + path + sep + 'units=' + BARO.ui.state.settings.units;
+  BARO.ui.dbg('fetch', url);
+  const resp = await fetch(url, {headers:{'Accept':'application/json'}});
+  const data = await resp.json();
+  if(data && data.error) throw new Error(data.error);
+  return data;
+};
+BARO.ui.dateStr = function(d){
+  const y=d.getFullYear(), m=('0'+(d.getMonth()+1)).slice(-2), dd=('0'+d.getDate()).slice(-2);
+  return ''+y+m+dd;
+};
+BARO.ui.loadAll = async function(){
+  const st = BARO.ui.state;
+  if(st.settings.demo){
+    const now = Date.now();
+    st.series = BARO.core.demoSeries(now, st.settings.units);
+    st.current = BARO.core.demoCurrent(now, st.settings.units);
+    st.source = 'demo';
+    BARO.ui.render();
+    return;
+  }
+  try{
+    const jobs = [ BARO.ui.fetchJSON('/current'), BARO.ui.fetchJSON('/today') ];
+    for(let i=1;i<=6;i++){
+      const d = new Date(Date.now() - i*24*3600*1000);
+      jobs.push(BARO.ui.fetchJSON('/hourly?date='+BARO.ui.dateStr(d)));
+    }
+    const results = await Promise.allSettled(jobs);
+    const cur = results[0].status==='fulfilled' ? BARO.core.normCurrent(results[0].value) : null;
+    const hist = [];
+    for(let i=1;i<results.length;i++){
+      if(results[i].status==='fulfilled') hist.push(results[i].value);
+      else BARO.ui.dbg('history fetch failed', i, results[i].reason && results[i].reason.message);
+    }
+    if(!cur && !hist.length) throw new Error('all fetches failed');
+    if(cur) st.current = cur;
+    const series = BARO.core.buildSeries(hist);
+    if(cur && cur.pressure!=null) series.push({t:cur.epoch, press:cur.pressure, temp:cur.temp, hum:cur.humidity});
+    if(series.length) st.series = series;
+    st.source = 'live';
+    st.lastFull = Date.now();
+    BARO.core.store.set('baro.cache', {version:APP_VERSION, at:Date.now(), current:st.current, series:st.series});
+  }catch(err){
+    BARO.ui.dbg('load failed', err.message);
+    const cache = BARO.core.store.get('baro.cache', null);
+    if(cache && cache.current){
+      st.current = cache.current; st.series = cache.series||[]; st.source = 'cached';
+    } else {
+      const now = Date.now();
+      st.series = BARO.core.demoSeries(now, st.settings.units);
+      st.current = BARO.core.demoCurrent(now, st.settings.units);
+      st.source = 'demo';
+    }
+  }
+  BARO.ui.render();
+};
+BARO.ui.refreshCurrent = async function(){
+  const st = BARO.ui.state;
+  if(st.settings.demo){ return BARO.ui.loadAll(); }
+  try{
+    const cur = BARO.core.normCurrent(await BARO.ui.fetchJSON('/current'));
+    if(cur){
+      st.current = cur;
+      if(cur.pressure!=null) st.series.push({t:cur.epoch, press:cur.pressure, temp:cur.temp, hum:cur.humidity});
+      st.source = 'live';
+      BARO.core.store.set('baro.cache', {version:APP_VERSION, at:Date.now(), current:st.current, series:st.series});
+    }
+  }catch(err){
+    BARO.ui.dbg('refresh failed', err.message);
+    if(st.source==='live') st.source='cached';
+  }
+  if(Date.now() - st.lastFull > 3600*1000){ return BARO.ui.loadAll(); }
+  BARO.ui.render();
+};
+BARO.ui.render = function(){
+  const st = BARO.ui.state, c = st.current || {};
+  const opts = { palette:BARO.ui.palette(), labels:BARO.core.labels(st.settings.units), units:st.settings.units, now:Date.now() };
+  const delta = BARO.core.pressureDelta(st.series, 3);
+  const trend = BARO.core.trendWords(delta, st.settings.units);
+  const glass = BARO.core.stormGlassState(delta, st.settings.units);
+
+  const el = function(id){ return document.getElementById(id); };
+  el('drum').innerHTML = BARO.svg.drum(st.series, opts);
+  el('drum-caption').innerHTML = '<b>'+esc(trend).toUpperCase()+'</b> &#183; the pen rests at '
+    + esc(fmt(c.pressure, st.settings.units==='m'?1:2)) + ' ' + opts.labels.p
+    + (c.obsTimeLocal ? ' &#183; observed ' + esc(c.obsTimeLocal) : '');
+
+  /* set hand: pressure 3 hours ago */
+  let setHand = null;
+  if(delta!=null && c.pressure!=null) setHand = c.pressure - delta;
+
+  el('dial-thermo').innerHTML = BARO.svg.thermometer(c.temp, c.dewpt, opts);
+  el('cap-thermo').innerHTML = '<b>THERMOMETER</b> &#183; ' + esc(fmt(c.temp)) + ' ' + opts.labels.t;
+  el('dial-baro').innerHTML = BARO.svg.barometer(c.pressure, setHand, opts);
+  el('cap-baro').innerHTML = '<b>ANEROID</b> &#183; ' + esc(trend.toLowerCase());
+  el('dial-hygro').innerHTML = BARO.svg.hygrometer(c.humidity, opts);
+  el('cap-hygro').innerHTML = '<b>HYGROMETER</b> &#183; ' + (c.humidity==null?'--':Math.round(c.humidity)) + ' percent';
+  el('dial-wind').innerHTML = BARO.svg.windRose(c.winddir, c.windSpeed, c.windGust, opts);
+  el('cap-wind').innerHTML = '<b>WIND</b> &#183; from the ' + esc(BARO.core.compassPoint(c.winddir));
+  el('dial-rain').innerHTML = BARO.svg.rainGauge(c.precipTotal, c.precipRate, opts);
+  el('cap-rain').innerHTML = '<b>RAIN GAUGE</b> &#183; ' + (c.precipRate>0 ? 'rate '+esc(fmt(c.precipRate,2))+' '+opts.labels.r+'/hr' : 'dry at present');
+  el('dial-storm').innerHTML = BARO.svg.stormGlass(glass, opts);
+  el('cap-storm').innerHTML = '<b>STORM GLASS</b> &#183; ' + esc(BARO.core.stormGlassWords(glass));
+
+  el('v-solar').textContent = c.solarRadiation==null ? '--' : fmt(c.solarRadiation,0)+' W/m\u00B2';
+  el('v-uv').textContent = c.uv==null ? '--' : String(c.uv);
+  el('v-dew').textContent = c.dewpt==null ? '--' : fmt(c.dewpt)+' '+opts.labels.t;
+  const feels = (c.temp!=null && c.heatIndex!=null && c.windChill!=null)
+    ? (c.temp>=70 ? c.heatIndex : (c.temp<=50 ? c.windChill : c.temp)) : c.temp;
+  el('v-feels').textContent = feels==null ? '--' : fmt(feels)+' '+opts.labels.t;
+  el('v-station').textContent = c.stationID || '--';
+  el('v-hood').textContent = c.neighborhood || '--';
+  el('v-obstime').textContent = c.obsTimeLocal || '--';
+
+  const badge = el('src-badge');
+  badge.className = 'badge' + (st.source==='live'?' live':(st.source==='demo'||st.source==='cached'?' warn':''));
+  badge.textContent = st.source.toUpperCase();
+};
+BARO.ui.toast = function(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(BARO.ui._toastT);
+  BARO.ui._toastT = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+};
+BARO.ui.applyTheme = function(){
+  document.documentElement.setAttribute('data-theme', BARO.ui.state.settings.theme);
+};
+BARO.ui.openDrawer = function(id){
+  document.getElementById(id).classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+};
+BARO.ui.closeDrawers = function(){
+  document.querySelectorAll('.drawer').forEach(function(d){ d.classList.remove('open'); });
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('modal-about').classList.remove('show');
+};
+BARO.ui.bind = function(){
+  const st = BARO.ui.state;
+  const el = function(id){ return document.getElementById(id); };
+  el('btn-settings').addEventListener('click', function(){
+    el('s-worker').value = st.settings.worker;
+    el('s-units').value = st.settings.units;
+    el('s-refresh').value = st.settings.refreshSec;
+    el('s-demo').checked = st.settings.demo;
+    el('s-debug').checked = st.settings.debug;
+    el('s-email').value = st.settings.feedbackEmail;
+    BARO.ui.openDrawer('drawer-settings');
+  });
+  el('s-save').addEventListener('click', function(){
+    st.settings.worker = el('s-worker').value.trim() || BARO.core.defaults.worker;
+    st.settings.units = el('s-units').value;
+    st.settings.refreshSec = Math.max(30, parseInt(el('s-refresh').value,10) || 90);
+    st.settings.demo = el('s-demo').checked;
+    st.settings.debug = el('s-debug').checked;
+    st.settings.feedbackEmail = el('s-email').value.trim();
+    BARO.core.store.set('baro.settings', st.settings);
+    BARO.ui.closeDrawers();
+    BARO.ui.toast('Settings saved. Rewinding the drum.');
+    BARO.ui.loadAll();
+  });
+  el('s-close').addEventListener('click', BARO.ui.closeDrawers);
+  el('s-export').addEventListener('click', function(){
+    try{
+      const blob = new Blob([JSON.stringify({version:APP_VERSION, settings:st.settings, cache:BARO.core.store.get('baro.cache',null)}, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'barograph-export.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }catch(e){ BARO.ui.toast('Export failed in this browser.'); }
+  });
+  el('s-import').addEventListener('click', function(){ el('s-import-file').click(); });
+  el('s-import-file').addEventListener('change', function(ev){
+    const f = ev.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = function(){
+      try{
+        const data = JSON.parse(r.result);
+        if(data.settings){ st.settings = Object.assign({}, BARO.core.defaults, data.settings); BARO.core.store.set('baro.settings', st.settings); }
+        if(data.cache){ BARO.core.store.set('baro.cache', data.cache); }
+        BARO.ui.applyTheme();
+        BARO.ui.toast('Import complete.');
+        BARO.ui.loadAll();
+      }catch(e){ BARO.ui.toast('That file could not be read.'); }
+    };
+    r.readAsText(f);
+  });
+  el('btn-theme').addEventListener('click', function(){
+    const order = ['night','day','contrast'];
+    st.settings.theme = order[(order.indexOf(st.settings.theme)+1)%order.length];
+    BARO.core.store.set('baro.settings', st.settings);
+    BARO.ui.applyTheme();
+    BARO.ui.render();
+    BARO.ui.toast('Theme: ' + st.settings.theme);
+  });
+  el('btn-about').addEventListener('click', function(){
+    document.getElementById('modal-about').classList.add('show');
+  });
+  el('about-close').addEventListener('click', BARO.ui.closeDrawers);
+  el('btn-feedback').addEventListener('click', function(){ BARO.ui.openDrawer('drawer-feedback'); });
+  el('f-close').addEventListener('click', BARO.ui.closeDrawers);
+  el('f-copy').addEventListener('click', function(){
+    const note = el('f-text').value + '\n\n[BAROGRAPH v'+APP_VERSION+' / '+navigator.userAgent+']';
+    if(navigator.clipboard){ navigator.clipboard.writeText(note).then(function(){ BARO.ui.toast('Note copied.'); }); }
+  });
+  el('f-mail').addEventListener('click', function(){
+    const addr = st.settings.feedbackEmail;
+    if(!addr){ BARO.ui.toast('Set a feedback email in Settings first.'); return; }
+    const body = encodeURIComponent(el('f-text').value + '\n\n[BAROGRAPH v'+APP_VERSION+']');
+    location.href = 'mailto:'+addr+'?subject='+encodeURIComponent('BAROGRAPH feedback')+'&body='+body;
+  });
+  el('overlay').addEventListener('click', BARO.ui.closeDrawers);
+  document.addEventListener('keydown', function(ev){ if(ev.key==='Escape') BARO.ui.closeDrawers(); });
+};
+BARO.ui.clockLoop = function(){
+  setInterval(function(){
+    const st = BARO.ui.state;
+    const remain = Math.max(0, Math.round((st.nextAt - Date.now())/1000));
+    const nextEl = document.getElementById('v-next');
+    if(nextEl) nextEl.textContent = st.settings.demo ? 'demonstration' : (remain+' s');
+    if(Date.now() >= st.nextAt){
+      st.nextAt = Date.now() + st.settings.refreshSec*1000;
+      BARO.ui.refreshCurrent();
+    }
+  }, 1000);
+};
+BARO.ui.init = function(){
+  BARO.ui.state.settings = BARO.core.loadSettings();
+  BARO.ui.applyTheme();
+  document.getElementById('v-version').textContent = 'v'+APP_VERSION;
+  document.querySelectorAll('.about-ver').forEach(function(n){ n.textContent = APP_VERSION; });
+  BARO.ui.bind();
+  BARO.ui.state.nextAt = Date.now() + BARO.ui.state.settings.refreshSec*1000;
+  BARO.ui.loadAll();
+  BARO.ui.clockLoop();
+};
+
+/* ================================================================
+   Test harness. Browser: ?test=1. Node: eval script, run BARO.runTests().
+   ================================================================ */
+function T(name, fn){ BARO.tests.push({name:name, fn:fn}); }
+function eq(a,b,msg){ if(a!==b) throw new Error((msg||'eq')+': expected '+b+', got '+a); }
+function ok(v,msg){ if(!v) throw new Error(msg||'expected truthy'); }
+function near(a,b,tol,msg){ if(Math.abs(a-b)>tol) throw new Error((msg||'near')+': '+a+' vs '+b); }
+
+T('labels imperial and metric', function(){
+  eq(BARO.core.labels('e').p,'inHg'); eq(BARO.core.labels('m').t,'\u00B0C');
+});
+T('unitsBlock picks whichever block exists', function(){
+  eq(BARO.core.unitsBlock({imperial:{temp:60}}).temp, 60);
+  eq(BARO.core.unitsBlock({metric:{temp:15}}).temp, 15);
+  ok(typeof BARO.core.unitsBlock(null) === 'object');
+});
+T('normCurrent maps WU payload', function(){
+  const c = BARO.core.normCurrent({observations:[{epoch:1700000000, stationID:'KTEST', humidity:55, winddir:270, solarRadiation:300, uv:5, imperial:{temp:61.2, dewpt:44.1, pressure:29.91, windSpeed:6, windGust:9, precipRate:0, precipTotal:0.1, heatIndex:61.2, windChill:61.2}}]});
+  eq(c.stationID,'KTEST'); near(c.pressure,29.91,1e-9); eq(c.epoch,1700000000000);
+});
+T('normCurrent returns null on empty payload', function(){
+  eq(BARO.core.normCurrent({observations:[]}), null);
+  eq(BARO.core.normCurrent(null), null);
+});
+T('tracePoint handles hourly history averages', function(){
+  const p = BARO.core.tracePoint({epoch:1000, humidityAvg:70, imperial:{tempAvg:50.5, pressureMax:30.01}});
+  near(p.temp,50.5,1e-9); near(p.press,30.01,1e-9); eq(p.hum,70);
+});
+T('buildSeries sorts and de-duplicates', function(){
+  const s = BARO.core.buildSeries([
+    {observations:[{epoch:20, imperial:{temp:2, pressure:29.9}}, {epoch:10, imperial:{temp:1, pressure:29.8}}]},
+    {observations:[{epoch:20, imperial:{temp:2, pressure:29.9}}, {epoch:30, imperial:{temp:3, pressure:30.0}}]}
+  ]);
+  eq(s.length,3); eq(s[0].t,10000); eq(s[2].t,30000);
+});
+T('pressureDelta finds a 3 hour reference', function(){
+  const now = Date.now();
+  const s = [{t:now-4*3600*1000, press:29.8},{t:now-3*3600*1000, press:29.9},{t:now, press:30.0}];
+  near(BARO.core.pressureDelta(s,3), 0.1, 1e-9);
+});
+T('trendWords thresholds', function(){
+  eq(BARO.core.trendWords(0.07,'e'),'Rising rapidly');
+  eq(BARO.core.trendWords(0.03,'e'),'Rising');
+  eq(BARO.core.trendWords(0.0,'e'),'Steady');
+  eq(BARO.core.trendWords(-0.03,'e'),'Falling');
+  eq(BARO.core.trendWords(-0.07,'e'),'Falling rapidly');
+  eq(BARO.core.trendWords(-2.4,'m'),'Falling rapidly');
+});
+T('storm glass state mapping', function(){
+  eq(BARO.core.stormGlassState(-0.08,'e'),'ferns');
+  eq(BARO.core.stormGlassState(-0.03,'e'),'blooms');
+  eq(BARO.core.stormGlassState(0.0,'e'),'faint');
+  eq(BARO.core.stormGlassState(0.05,'e'),'clear');
+  ok(BARO.core.stormGlassWords('ferns').indexOf('storm')>=0);
+});
+T('compass points', function(){
+  eq(BARO.core.compassPoint(0),'N'); eq(BARO.core.compassPoint(292),'WNW'); eq(BARO.core.compassPoint(359),'N');
+});
+T('drum x mapping is monotonic with compressed edges', function(){
+  const xs = [0,0.1,0.25,0.5,0.75,0.9,1].map(BARO.core.drumX);
+  for(let i=1;i<xs.length;i++) ok(xs[i]>xs[i-1],'monotonic');
+  const edge = xs[1]-xs[0], mid = BARO.core.drumX(0.55)-BARO.core.drumX(0.45);
+  ok(mid > edge, 'center wider than edge under cylinder wrap');
+  near(BARO.core.drumX(0.5), BARO.core.drumGeom.cx, 1e-6);
+});
+T('demo series spans seven days and stays sane', function(){
+  const now = 1750000000000;
+  const s = BARO.core.demoSeries(now,'e');
+  ok(s.length>300); eq(s[s.length-1].t, now);
+  s.forEach(function(p){ ok(p.press>28.5 && p.press<31,'pressure sane'); ok(p.hum>=15 && p.hum<=100,'humidity sane'); });
+  /* deterministic */
+  eq(JSON.stringify(BARO.core.demoSeries(now,'e')[0]), JSON.stringify(s[0]));
+});
+T('svg builders return well formed strings for all themes', function(){
+  ['night','day','contrast'].forEach(function(th){
+    const opts = {palette:BARO.core.palettes[th], labels:BARO.core.labels('e'), units:'e', now:1750000000000};
+    const series = BARO.core.demoSeries(1750000000000,'e');
+    [BARO.svg.drum(series,opts), BARO.svg.barometer(29.9,29.95,opts), BARO.svg.hygrometer(60,opts),
+     BARO.svg.windRose(292,7,12,opts), BARO.svg.thermometer(61,44,opts), BARO.svg.rainGauge(0.4,0.02,opts),
+     BARO.svg.stormGlass('ferns',opts)].forEach(function(svg){
+      ok(svg.indexOf('<svg')===0,'starts with svg');
+      ok(svg.lastIndexOf('</svg>')===svg.length-6,'ends with svg');
+      ok(svg.indexOf('NaN')<0,'no NaN in '+th);
+      ok(svg.indexOf('undefined')<0,'no undefined in '+th);
+    });
+  });
+});
+T('WCAG contrast holds in every theme', function(){
+  const req = {night:4.5, day:4.5, contrast:7};
+  Object.keys(BARO.core.palettes).forEach(function(th){
+    const P = BARO.core.palettes[th], min = req[th];
+    ok(BARO.core.contrast(P.text,P.bg)>=min, th+' text/bg '+BARO.core.contrast(P.text,P.bg).toFixed(2));
+    ok(BARO.core.contrast(P.muted,P.bg)>=4.5, th+' muted/bg '+BARO.core.contrast(P.muted,P.bg).toFixed(2));
+    ok(BARO.core.contrast(P.text,P.panel)>=min, th+' text/panel');
+    ok(BARO.core.contrast(P.ink,P.paper)>=4.5, th+' ink/paper '+BARO.core.contrast(P.ink,P.paper).toFixed(2));
+    ok(BARO.core.contrast(P.ink2,P.paper)>=4.5, th+' ink2/paper '+BARO.core.contrast(P.ink2,P.paper).toFixed(2));
+  });
+});
+T('store falls back cleanly with no localStorage', function(){
+  eq(BARO.core.store.get('baro.__nope__', 'fallback'), 'fallback');
+});
+T('version string is semver', function(){
+  ok(/^\d+\.\d+\.\d+$/.test(APP_VERSION));
+});
+
+BARO.runTests = function(){
+  const results = [];
+  BARO.tests.forEach(function(t){
+    try{ t.fn(); results.push({name:t.name, pass:true}); }
+    catch(e){ results.push({name:t.name, pass:false, error:e.message}); }
+  });
+  return results;
+};
+
+/* expose for node harness */
+if (typeof globalThis !== 'undefined') globalThis.BARO = BARO;
+if (typeof globalThis !== 'undefined') globalThis.BARO_VERSION = APP_VERSION;
+
+/* boot */
+if (typeof document !== 'undefined' && document.getElementById('app')){
+  if (location.search.indexOf('test') >= 0){
+    document.getElementById('app').style.display = 'none';
+    const results = BARO.runTests();
+    const div = document.createElement('div');
+    div.id = 'test-report';
+    const passCount = results.filter(function(r){return r.pass;}).length;
+    div.innerHTML = '<h2 class="sc">BAROGRAPH TEST HARNESS &#183; '+passCount+' / '+results.length+' PASSED</h2>'
+      + '<table><tr><th>Test</th><th>Result</th></tr>'
+      + results.map(function(r){
+          return '<tr><td>'+esc(r.name)+'</td><td class="'+(r.pass?'t-pass':'t-fail')+'">'+(r.pass?'pass':'FAIL: '+esc(r.error||''))+'</td></tr>';
+        }).join('')
+      + '</table>';
+    document.body.appendChild(div);
+  } else if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', BARO.ui.init);
+  } else {
+    BARO.ui.init();
+  }
+}
+</script>
+</body>
+</html>

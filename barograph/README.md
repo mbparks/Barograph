@@ -2,7 +2,7 @@
 
 Field Instrument No. 067. A Victorian observatory drum that records live weather from a personal weather station. The drum carries seven days of chart paper: pressure drawn in oxblood ink, temperature in prussian, with the pen resting on the present moment. Two pens ride the drum at once: brass stops beneath it choose which measurements they record, each writing in its own ink against its own scale. Around them, a shelf of instruments: mercury thermometer, aneroid barometer with set hand, hygrometer, wind rose, rain gauge, and a storm glass whose crystals answer the pressure trend.
 
-Current version: 1.3.1
+Current version: 1.3.2
 
 ## Data source
 
@@ -39,6 +39,7 @@ Single-file HTML, no build step, local-first, GPL-3.0. Night-default theming wit
 
 ## Changelog
 
+- 1.3.2: The pen no longer writes at the very edge of the paper. The drum now carries a day of blank ruled chart ahead of the present moment, so the pen rides about half an inch in from the right, with the coming day line preprinted on the empty paper before it.
 - 1.3.1: Legibility pass on the drum scales. Numerals are now printed on the chart paper inside the margins, large and bold in their trace's ink, with a paper-colored halo so they stay readable where a trace crosses them. The right-hand scale no longer hides behind the pen gantry. Unit tags moved inside the top corners in the same style.
 - 1.3.0: One drum, seven inks, two pens. The register wall is consolidated onto the drum itself: brass stops beneath it toggle any measurement on or off, two at a time, each trace in its own ink with its own scale (first choice left, newest right). Choosing a third lifts the oldest pen; the drum always keeps at least one. Ultraviolet gains its own iron gall ink. The generic register strip and the four standalone registers are retired. Selection persists in settings and export. Twenty-nine tests.
 - 1.2.2: Rain gauge fix: a trace amount of rain smaller than the glass inset produced a negative fill height and a console error; the water level is now clamped so any measurable rain shows at least a sliver. Inline SVG favicon added (a small drum in brass and oxblood), ending the favicon 404. Edge-value regression test across all dial builders. Twenty-eight tests.

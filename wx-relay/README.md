@@ -68,6 +68,7 @@ curl https://wx-relay.YOURSUBDOMAIN.workers.dev/current
 
 ## Changelog
 
+- 0.1.1: CORS hardening. A default allowlist (mbparks.com and www.mbparks.com) is baked into the worker, so a deployment that loses the ALLOWED_ORIGINS var (for example, code pasted into the Cloudflare dashboard) still serves the home domains; the var, when present, overrides the default. Edge-cached responses are now stored without CORS headers and headers are applied per request, so a cache hit can never echo one origin's Access-Control-Allow-Origin to another. Six new harness tests, twenty in all.
 - 0.1.0: Initial release. Routes for current, today, 7day, hourly, daily. Edge caching, CORS allowlist, debug logging, JSON error envelope.
 
 ## License

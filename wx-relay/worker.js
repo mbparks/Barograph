@@ -15,7 +15,7 @@
  * License: GPL-3.0
  */
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 
 // Route table. Each Worker route maps to a WU v2 PWS endpoint.
 // ttl = edge cache lifetime in seconds. Keeps us well inside the
@@ -97,6 +97,8 @@ export default {
     if (cached) {
       log('cache hit', url.pathname);
       const hit = new Response(cached.body, cached);
+      hit.headers.delete('Access-Control-Allow-Origin');
+      hit.headers.delete('Vary');
       applyHeaders(hit.headers, cors);
       hit.headers.set('X-WX-Relay-Cache', 'hit');
       return hit;
@@ -131,22 +133,25 @@ export default {
       return jsonError('Upstream returned invalid JSON.', 502, cors);
     }
 
-    const headers = new Headers({
+    const baseHeaders = {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': `public, max-age=${route.ttl}`,
       'X-WX-Relay-Version': VERSION,
       'X-WX-Relay-Cache': 'miss',
-    });
-    applyHeaders(headers, cors);
+    };
+    // Cache a copy with no CORS headers; CORS is applied per request.
+    ctx.waitUntil(cache.put(cacheKey, new Response(body, { status: 200, headers: new Headers(baseHeaders) })));
 
-    const response = new Response(body, { status: 200, headers });
-    ctx.waitUntil(cache.put(cacheKey, response.clone()));
-    return response;
+    const headers = new Headers(baseHeaders);
+    applyHeaders(headers, cors);
+    return new Response(body, { status: 200, headers });
   },
 };
 
+const DEFAULT_ALLOWED_ORIGINS = 'https://mbparks.com,https://www.mbparks.com';
+
 function corsHeaders(origin, env) {
-  const allowed = (env.ALLOWED_ORIGINS || '')
+  const allowed = (env.ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS)
     .split(',')
     .map(s => s.trim())
     .filter(Boolean);

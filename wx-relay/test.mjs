@@ -53,6 +53,26 @@ check('unknown 404', r.status === 404);
 r = await worker.fetch(new Request('https://wx-relay.test/current', { method: 'POST' }), env, ctx);
 check('POST 405', r.status === 405);
 
+// default allowlist kicks in when ALLOWED_ORIGINS var is absent
+r = await worker.fetch(req('/current', 'https://mbparks.com'), { WU_API_KEY: 'testkey', STATION_ID: 'KMDTEST1' }, ctx);
+check('default allowlist serves mbparks.com', r.headers.get('Access-Control-Allow-Origin') === 'https://mbparks.com');
+r = await worker.fetch(req('/current', 'https://evil.example'), { WU_API_KEY: 'testkey', STATION_ID: 'KMDTEST1' }, ctx);
+check('default allowlist still blocks others', r.headers.get('Access-Control-Allow-Origin') === null);
+
+// cached responses never leak another origin's CORS header
+{
+  let stored = null;
+  globalThis.caches = { default: { match: async () => stored, put: async (k, v) => { stored = v; } } };
+  r = await worker.fetch(req('/7day', 'https://mbparks.com'), env, ctx);
+  check('miss carries cors', r.headers.get('Access-Control-Allow-Origin') === 'https://mbparks.com');
+  check('cached copy has no cors', stored !== null && stored.headers.get('Access-Control-Allow-Origin') === null);
+  r = await worker.fetch(req('/7day', 'https://evil.example'), env, ctx);
+  check('cache hit blocks disallowed origin', r.headers.get('X-WX-Relay-Cache') === 'hit' && r.headers.get('Access-Control-Allow-Origin') === null);
+  r = await worker.fetch(req('/7day', 'https://mbparks.com'), env, ctx);
+  check('cache hit echoes allowed origin', r.headers.get('X-WX-Relay-Cache') === 'hit' && r.headers.get('Access-Control-Allow-Origin') === 'https://mbparks.com');
+  globalThis.caches = { default: { match: async () => undefined, put: async () => {} } };
+}
+
 // missing secret
 r = await worker.fetch(req('/current'), { STATION_ID: 'X' }, ctx);
 j = await r.json();

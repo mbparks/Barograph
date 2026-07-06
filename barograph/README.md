@@ -2,7 +2,7 @@
 
 Field Instrument No. 067. A Victorian observatory drum that records live weather from a personal weather station. The drum carries seven days of chart paper: pressure drawn in oxblood ink, temperature in prussian, with the pen resting on the present moment. Below the drum, a column of registers keeps a seven-day record of every measurement: anemograph for wind, hygrograph for humidity, pluviograph for rainfall, actinograph for sunshine and ultraviolet. Around them, a shelf of instruments: mercury thermometer, aneroid barometer with set hand, hygrometer, wind rose, rain gauge, and a storm glass whose crystals answer the pressure trend.
 
-Current version: 1.2.1
+Current version: 1.2.2
 
 ## Data source
 
@@ -40,6 +40,7 @@ Single-file HTML, no build step, local-first, GPL-3.0. Night-default theming wit
 
 ## Changelog
 
+- 1.2.2: Rain gauge fix: a trace amount of rain smaller than the glass inset produced a negative fill height and a console error; the water level is now clamped so any measurable rain shows at least a sliver. Inline SVG favicon added (a small drum in brass and oxblood), ending the favicon 404. Edge-value regression test across all dial builders. Twenty-eight tests.
 - 1.2.1: Trace geometry fix: ink lines now follow the paper's curvature exactly on every register, matching their grid lines. Previously traces rode 26 pixels high against their scales and values near the top of a scale could crest over the paper rim. Register value bands are now inset from the rims, with a regression test pinning a 100 percent trace against the top edge. The hygrograph's ink is properly named sunbury. Twenty-seven tests.
 - 1.2.0: The full meteorograph. Three new registers below the anemograph: hygrograph (humidity in sunbury), pluviograph (daily cumulative rainfall in indigo with siphon resets at midnight), and actinograph (solar radiation in burnt umber, ultraviolet stippled). All four strips rewritten onto one generic register renderer. Rain, solar, and ultraviolet now collected in series, refresh, cache, and demo weather. Six new harness tests, twenty-six in all.
 - 1.1.0: Anemograph strip below the drum. Wind speed in verdigris ink, gusts as pen flicks, Beaufort engravings at the margin, day lines aligned with the drum above. Wind and gust now collected in the series, live refresh, cache, and demo weather. Beaufort caption under the strip with the week's high gust. Four new harness tests, twenty in all.

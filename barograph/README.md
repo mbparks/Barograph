@@ -2,7 +2,7 @@
 
 Field Instrument No. 067. A Victorian observatory drum that records live weather from a personal weather station. The drum carries seven days of chart paper: pressure drawn in oxblood ink, temperature in prussian, with the pen resting on the present moment. Two pens ride the drum at once: brass stops beneath it choose which measurements they record, each writing in its own ink against its own scale. Around them, a shelf of instruments: mercury thermometer, aneroid barometer with set hand, hygrometer, wind rose, rain gauge, and a storm glass whose crystals answer the pressure trend.
 
-Current version: 1.3.2
+Current version: 1.4.0
 
 ## Data source
 
@@ -11,7 +11,8 @@ BAROGRAPH is fed by WX-RELAY, a Cloudflare Worker that proxies the Weather Under
 ## Features
 
 - Two pens, seven inks: pressure (oxblood), temperature (prussian), wind (verdigris, with gusts as pen flicks), humidity (sunbury), rain (indigo, dropping to nought at midnight in the manner of a siphon recorder), sun (burnt umber), and ultraviolet (iron gall). Brass stops beneath the drum toggle measurements on and off, up to two at a time; the first choice takes the left-hand scale and grid, the newest takes the right-hand scale, and choosing a third lifts the oldest pen. Scale numerals are printed in their trace's ink, and the plinth engraving names the active inks. The selection persists with your settings.
-- Seven-day drum with cylindrical wrap: time compresses toward the drum edges, grid lines sag with the paper, a brass pen arm scratches at the last observation, and the drum sits in flickering gaslight in the night theme.
+- A flat, honest chart: linear time across aged paper, no faux cylinder or brass apparatus, with a day of blank ruled chart ahead of the present and ink dots resting on the latest observations. The card still sits in flickering gaslight in the night theme.
+- Hover readout: rest the pointer anywhere on the chart and a hairline crosshair snaps to the nearest observation, marking each active trace with a ring in its ink and a card reading out the time and values.
 - Aneroid barometer with a set hand marking the reading three hours past, in the manner of a hall barometer, plus classic RAIN / CHANGE / FAIR engraving.
 - Storm glass with four states (clear, faint haze, blooming stars, climbing ferns) keyed to the three-hour pressure trend, with period-appropriate captions.
 - Live, cached, and demo sources: if the wire goes quiet the instrument falls back to its last cached readings, and failing that to a demonstration week of synthetic weather. The badge in the header always tells you which you are looking at.
@@ -22,7 +23,7 @@ BAROGRAPH is fed by WX-RELAY, a Cloudflare Worker that proxies the Weather Under
 
 ## Test harness
 
-Append `?test=1` to the page URL to run the built-in harness in the browser. The same twenty-nine tests run headless in node by extracting the embedded script. Coverage: WU payload normalization, series building and de-duplication, pressure trend thresholds, storm glass states, compass points, drum geometry monotonicity and edge compression, Beaufort scale words, wind, gust, rain, solar, and ultraviolet extraction from history fields, humidity and sun words, weekly rainfall summation, tidy scale maxima, channel toggling limits, per-channel scale domains, every channel pairing across themes, demo determinism and siphon behavior, SVG well-formedness across all three themes, and WCAG contrast ratios for every theme palette.
+Append `?test=1` to the page URL to run the built-in harness in the browser. The same thirty tests run headless in node by extracting the embedded script. Coverage: WU payload normalization, series building and de-duplication, pressure trend thresholds, storm glass states, compass points, drum geometry monotonicity and edge compression, Beaufort scale words, wind, gust, rain, solar, and ultraviolet extraction from history fields, humidity and sun words, weekly rainfall summation, tidy scale maxima, channel toggling limits, per-channel scale domains, every channel pairing across themes, demo determinism and siphon behavior, SVG well-formedness across all three themes, and WCAG contrast ratios for every theme palette.
 
 ## Known limitations
 
@@ -39,6 +40,7 @@ Single-file HTML, no build step, local-first, GPL-3.0. Night-default theming wit
 
 ## Changelog
 
+- 1.4.0: Less apparatus, more chart. The faux cylinder is retired: time runs linear across a flat sheet of aged paper, and the pillars, spindle, plinth, and pen arm are gone. The seven inks, bold on-paper scales, day ruling, gust flicks, siphon rain, and the blank day ahead of the present all remain. New: hover readout, a hairline crosshair that snaps to the nearest observation with ink-ringed markers on each active trace and a card showing the time and values. Thirty tests.
 - 1.3.2: The pen no longer writes at the very edge of the paper. The drum now carries a day of blank ruled chart ahead of the present moment, so the pen rides about half an inch in from the right, with the coming day line preprinted on the empty paper before it.
 - 1.3.1: Legibility pass on the drum scales. Numerals are now printed on the chart paper inside the margins, large and bold in their trace's ink, with a paper-colored halo so they stay readable where a trace crosses them. The right-hand scale no longer hides behind the pen gantry. Unit tags moved inside the top corners in the same style.
 - 1.3.0: One drum, seven inks, two pens. The register wall is consolidated onto the drum itself: brass stops beneath it toggle any measurement on or off, two at a time, each trace in its own ink with its own scale (first choice left, newest right). Choosing a third lifts the oldest pen; the drum always keeps at least one. Ultraviolet gains its own iron gall ink. The generic register strip and the four standalone registers are retired. Selection persists in settings and export. Twenty-nine tests.

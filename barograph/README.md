@@ -2,7 +2,7 @@
 
 Field Instrument No. 067. A Victorian observatory drum that records live weather from a personal weather station. The drum carries seven days of chart paper: pressure drawn in oxblood ink, temperature in prussian, with the pen resting on the present moment. Two pens ride the drum at once: brass stops beneath it choose which measurements they record, each writing in its own ink against its own scale. Around them, a shelf of instruments: mercury thermometer, aneroid barometer with set hand, hygrometer, wind rose, rain gauge, and a storm glass whose crystals answer the pressure trend.
 
-Current version: 1.4.2
+Current version: 1.4.3
 
 ## Data source
 
@@ -40,6 +40,7 @@ Single-file HTML, no build step, local-first, GPL-3.0. Night-default theming wit
 
 ## Changelog
 
+- 1.4.3: The retired worker URL now migrates in any spelling (trailing slash and all) and the corrected setting is written back to storage, so the settings drawer shows the current relay.
 - 1.4.2: Default relay is now https://wx-relay.mike-268.workers.dev. Saved settings holding the retired weatherstation URL migrate automatically on load.
 - 1.4.1: Gauge captions enlarged for legibility.
 - 1.4.0: Less apparatus, more chart. The faux cylinder is retired: time runs linear across a flat sheet of aged paper, and the pillars, spindle, plinth, and pen arm are gone. The seven inks, bold on-paper scales, day ruling, gust flicks, siphon rain, and the blank day ahead of the present all remain. New: hover readout, a hairline crosshair that snaps to the nearest observation with ink-ringed markers on each active trace and a card showing the time and values. Thirty tests.
